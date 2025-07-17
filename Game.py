@@ -16,7 +16,7 @@ FPS = 60
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Spline Demo")
+pygame.display.set_caption("Racer Demo")
 clock = pygame.time.Clock()
 
 p1 = Point.Point(100, 300, h=0)

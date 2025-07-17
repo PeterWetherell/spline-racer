@@ -24,6 +24,9 @@ class Point:
             p2 = Point(0,0)
         return Point(self.x-p2.x, self.y-p2.y, self.h-p2.h)
     
+    def mult(self, m = 1):
+        return Point(self.x*m, self.y*m, self.h*m)
+    
     def clone(self):
         return Point(self.x, self.y, self.h)
 
