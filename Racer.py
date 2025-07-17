@@ -22,6 +22,8 @@ class Racer:
     
     def update(self, throttle, turn):
         throttle = np.clip(throttle, -1, 1)
+        if abs(throttle) < 0.05:
+            throttle = 0
         turn = np.clip(turn, -1, 1)
 
         # we have some amount of weight and then we get more with downforce from velociy
@@ -39,6 +41,8 @@ class Racer:
             if throttle*self.relVel.x < 0:
                 a = deccel
             self.relVel.x += (a*self.loopTime*throttle)*max((maxSpeed - np.sign(throttle)*self.relVel.x)/maxSpeed,1) - np.sign(self.relVel.x)*(self.relVel.x**2)*self.loopTime*dragCoef
+            if throttle == 0:
+                self.relVel.x -= np.sign(self.relVel.x)*min(abs(self.relVel.x),self.loopTime*accel/3)
             self.relVel.h = self.relVel.x / turnRadius * turn # S = r * theta --> theta = S/r
             self.relVel.y -= np.sign(self.relVel.y)*min(abs(self.relVel.y), self.loopTime*maxSpeed*2)
         else: # No traction = spin out

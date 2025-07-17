@@ -19,6 +19,11 @@ class Point:
             p2 = Point(0,0)
         return Point(self.x+p2.x, self.y+p2.y, self.h+p2.h)
     
+    def dot(self, p2 = None):
+        if p2 is None:
+            p2 = Point(0,0)
+        return self.x*p2.x + self.y*p2.y
+    
     def sub(self, p2 = None):
         if p2 is None:
             p2 = Point(0,0)
