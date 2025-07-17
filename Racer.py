@@ -2,11 +2,12 @@ import numpy as np
 import pygame
 import Point
 
-width = 5
+width = 10
 length = 20
-maxSpeed = 300
-dragMaxSpeed = 250
-accel = maxSpeed/2.0
+maxSpeed = 700
+dragMaxSpeed = 600
+accel = maxSpeed/1.3
+deccel = maxSpeed*3
 turnRadius = width * 2
 dragCoef = accel*(maxSpeed - dragMaxSpeed)/(maxSpeed * dragMaxSpeed**2)
 
@@ -20,10 +21,12 @@ class Racer:
         self.hasTraction = True
     
     def update(self, throttle, turn):
+        throttle = np.clip(throttle, -1, 1)
+        turn = np.clip(turn, -1, 1)
 
         # we have some amount of weight and then we get more with downforce from velociy
-        staticFriction = 200 + 300 * (self.relVel.x/dragMaxSpeed)**2
-        centripitalForce = 0.5 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
+        staticFriction = 400 + 800 * (self.relVel.x/dragMaxSpeed)**2
+        centripitalForce = 0.08 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
         
         if np.abs(centripitalForce) > staticFriction: # we lose traction if we have more centripital force than our static friction
             self.hasTraction = False
@@ -32,13 +35,18 @@ class Racer:
         
         if self.hasTraction:
             # First term makes it so we gradually decelerate at max speed (no drag), 2nd term is drag
-            self.relVel.x += (accel*self.loopTime*throttle)*max((maxSpeed - np.sign(throttle)*self.relVel.x)/maxSpeed,1) - np.sign(self.relVel.x)*(self.relVel.x**2)*self.loopTime*dragCoef
-            self.relVel.h += self.relVel.x / turnRadius * turn # S = r * theta --> theta = S/r
+            a = accel
+            if throttle*self.relVel.x < 0:
+                a = deccel
+            self.relVel.x += (a*self.loopTime*throttle)*max((maxSpeed - np.sign(throttle)*self.relVel.x)/maxSpeed,1) - np.sign(self.relVel.x)*(self.relVel.x**2)*self.loopTime*dragCoef
+            self.relVel.h = self.relVel.x / turnRadius * turn # S = r * theta --> theta = S/r
+            self.relVel.y -= np.sign(self.relVel.y)*min(abs(self.relVel.y), self.loopTime*maxSpeed*2)
         else: # No traction = spin out
             rotVel = self.relVel.h
             self.relVel.h = 0
-            self.relVel = self.relVel.rotate(-self.loopTime*rotVel).mult(0.5**self.loopTime) # this spins out and slows us down (we lose 50% speed every second)
+            self.relVel = self.relVel.rotate(-self.loopTime*rotVel) # this spins out
             self.relVel.h = rotVel
+            self.relVel = self.relVel.mult(0.2**self.loopTime) # this slows it down by 80% every sec
  
         delta = self.relVel.mult(self.loopTime) # find the delta
         self.pos.h += delta.h
@@ -47,10 +55,8 @@ class Racer:
         self.pos = self.pos.add(delta) # Add the global delta to the position
 
     def draw(self, screen):
-        center = (int(self.pos.x), int(self.pos.y))
-        angle = -self.pos.heading  # Pygame rotates counter-clockwise
-        car = pygame.Surface((length, width))
-        car.fill((255, 255, 0))
-        car = pygame.transform.rotate(car, np.degrees(angle))
-        rect = car.get_rect(center=center)
-        screen.blit(car, rect)
+        car_surf = pygame.Surface((length, width), pygame.SRCALPHA)
+        car_surf.fill((255, 255, 0))
+        rotated_surf = pygame.transform.rotate(car_surf, -np.degrees(self.pos.h))
+        rect = rotated_surf.get_rect(center=(int(self.pos.x), int(self.pos.y)))
+        screen.blit(rotated_surf, rect)
