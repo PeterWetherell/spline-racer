@@ -1,6 +1,6 @@
 import pygame
-import Spline
 import Point
+import Spline
 import numpy as np
 
 def draw_spline(screen, spline, color=(255, 255, 255), resolution=100):
@@ -19,10 +19,10 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Spline Demo")
 clock = pygame.time.Clock()
 
-p1 = Point(100, 300, heading=0)
-p2 = Point(700, 300, heading=np.pi)
+p1 = Point.Point(100, 300, h=0)
+p2 = Point.Point(700, 500, h=0)
 
-s = Spline(p1, p2)
+s = Spline.Spline(p1, p2)
 
 running = True
 while running:

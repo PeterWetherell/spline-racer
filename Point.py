@@ -1,10 +1,10 @@
 import numpy as np
 
 class Point:
-    def __init__(self, x, y, heading=0):
+    def __init__(self, x, y, h=0):
         self.x = x
         self.y = y
-        self.heading = heading
+        self.h = h
 
     def dist(self, p2 = None):
         if p2 is None:
@@ -17,17 +17,17 @@ class Point:
     def add(self, p2 = None):
         if p2 is None:
             p2 = Point(0,0)
-        return Point(self.x+p2.x, self.y+p2.y, self.heading+p2.heading)
+        return Point(self.x+p2.x, self.y+p2.y, self.h+p2.h)
     
     def sub(self, p2 = None):
         if p2 is None:
             p2 = Point(0,0)
-        return Point(self.x-p2.x, self.y-p2.y, self.heading-p2.heading)
+        return Point(self.x-p2.x, self.y-p2.y, self.h-p2.h)
     
     def clone(self):
-        return Point(self.x, self.y, self.heading)
+        return Point(self.x, self.y, self.h)
 
     def rotate(self, h):
         nx = self.x*np.cos(h) - self.y*np.sin(h)
         ny = self.y*np.cos(h) + self.x*np.sin(h)
-        return Point(nx,ny,self.heading+h)
+        return Point(nx,ny,self.h+h)
