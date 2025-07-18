@@ -1,5 +1,6 @@
 import numpy as np
 import Point
+import pygame
 
 class Racer:
     # all my static variables
@@ -9,7 +10,7 @@ class Racer:
     dragMaxSpeed = 600
     accel = maxSpeed/1.3
     deccel = maxSpeed*3
-    turnRadius = width * 2
+    turnRadius = width * 4
     dragCoef = accel*(maxSpeed - dragMaxSpeed)/(maxSpeed * dragMaxSpeed**2)
 
     def __init__(self, start = None, hZ = 60):
@@ -52,8 +53,13 @@ class Racer:
             self.relVel.h = rotVel
             self.relVel = self.relVel.mult(0.2**self.loopTime) # this slows it down by 80% every sec
  
-        delta = self.relVel.mult(self.loopTime) # find the delta
-        self.pos.h += delta.h
-        delta = delta.rotate(self.pos.h) # Convert the delta to a global delta by rotating it to the racer's heading
-        delta.h = 0
-        self.pos = self.pos.add(delta) # Add the global delta to the position
+        self.delta = self.relVel.mult(self.loopTime) # find the delta
+        self.pos.h += self.delta.h
+        self.delta = self.delta.rotate(self.pos.h) # Convert the delta to a global delta by rotating it to the racer's heading
+
+    def draw(self, screen):
+        car_surf = pygame.Surface((self.length, self.width), pygame.SRCALPHA)
+        car_surf.fill((255, 255, 0))
+        rotated_surf = pygame.transform.rotate(car_surf, -np.degrees(self.pos.h))
+        rect = rotated_surf.get_rect(center=(int(self.pos.x + 400), int(self.pos.y + 300)))
+        screen.blit(rotated_surf, rect)
