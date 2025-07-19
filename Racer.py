@@ -28,7 +28,7 @@ class Racer:
         turn = np.clip(turn, -1, 1)
 
         # we have some amount of weight and then we get more with downforce from velociy
-        staticFriction = 400 + 800 * (self.relVel.x/Racer.dragMaxSpeed)**2
+        staticFriction = 400 + 400 * (self.relVel.x/Racer.dragMaxSpeed)**2
         centripitalForce = 0.08 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
         
         if np.abs(centripitalForce) > staticFriction: # we lose traction if we have more centripital force than our static friction
