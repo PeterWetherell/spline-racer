@@ -21,7 +21,9 @@ class Spline:
         self.coefX[4] += delta.x
         self.coefY[4] += delta.y
 
-    def get_closest_t(self, t, p):
+    def get_closest_t(self, t, p = None):
+        if p is None:
+            p = Point.Point(0,0)
         while True:
             d = p.sub(self.get_point(t))
             v = self.get_vel(t)

@@ -35,25 +35,27 @@ class TrackManager:
         racer_delta = racer_delta.mult(-1)
         for i in range(len(self.splines)):
             self.splines[i].update(racer_delta)
-        self.getClosestPoint(racer_delta)
+        prevT = self.time + self.index
+        self.getClosestPoint()
+        self.deltaT = (self.time + self.index) - prevT
         if self.index > 1:
             self.splines.pop(0)
             self.index -= 1
             self.addNewSpline()
     
-    def getClosestPoint(self, racer_delta):
-        t1 = self.splines[self.index].get_closest_t(self.time, racer_delta)
+    def getClosestPoint(self):
+        t1 = self.splines[self.index].get_closest_t(self.time)
         if t1 < 0:
             if (self.index < 1): # Has gone too far backward on the track -- we dq them
                 return
-            t0 = np.clip(self.splines[self.index-1].get_closest_t(1,racer_delta),0,1)
+            t0 = np.clip(self.splines[self.index-1].get_closest_t(1),0,1) # start at t=1 bc that is theoretically the closest point on the last spline
             if self.splines[self.index].get_point(0).mag() > self.splines[self.index-1].get_point(t0).mag(): # if the point on the previous spline is closer -- use that one
                 self.index -= 1
                 self.time = t0
             else:
                 self.time = 0
         elif t1 > 1:
-            t2 = np.clip(self.splines[self.index+1].get_closest_t(0,racer_delta),0,1)
+            t2 = np.clip(self.splines[self.index+1].get_closest_t(0),0,1) # start at t=0 bc that is theoretically the closest point on the next spline
             if self.splines[self.index].get_point(1).mag() > self.splines[self.index+1].get_point(t2).mag(): # if the point on the next spline is closer -- use that one
                 self.index += 1
                 self.time = t2
