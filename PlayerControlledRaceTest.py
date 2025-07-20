@@ -46,6 +46,15 @@ while running:
 
     racer.draw(screen)
     track.draw(screen)
+
+    points = []
+    n = 5
+    start = 0
+    end = 1
+    for i in range(n):
+        points.append(track.get_point(start + (end-start)*i/(n-1)).rotate(-racer.pos.h))
+        pygame.draw.circle(screen, (255, 0, 0), (int(points[-1].x+400), int(points[-1].y)+300), 6)
+
     
     pygame.display.flip()
     clock.tick(FPS)

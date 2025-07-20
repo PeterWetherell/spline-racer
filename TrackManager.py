@@ -43,6 +43,17 @@ class TrackManager:
             self.index -= 1
             self.addNewSpline()
     
+    def get_point(self, t):
+        t += self.time
+        i = self.index
+        if t > 1:
+            t -= 1
+            i += 1
+        elif t < 0:
+            t += 1
+            i -= 1
+        return self.splines[i].get_point(t)
+    
     def getClosestPoint(self):
         t1 = self.splines[self.index].get_closest_t(self.time)
         if t1 < 0:
@@ -64,7 +75,7 @@ class TrackManager:
         else:
             self.time = t1
         self.closestPoint = self.splines[self.index].get_point(self.time)
-
+        self.curvature = self.splines[self.index].get_curvature(self.time)
 
     def draw(self,screen):
         pygame.draw.circle(screen, (255, 0, 0), (int(self.closestPoint.x+400), int(self.closestPoint.y)+300), 6)
