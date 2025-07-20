@@ -23,6 +23,8 @@ class TrackManager:
         self.addNewSpline()
         self.index = 1
         self.time = 0
+        self.curvature = 0
+        self.closestPoint = Point.Point(0,0)
 
     def addNewSpline(self):
         end = self.splines[-1].get_point(1)

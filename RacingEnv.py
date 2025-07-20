@@ -16,8 +16,8 @@ class RacingEnv(gym.Env):
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(18,), dtype=np.float32)
 
     def reset(self):
-        self.track = TrackManager()
-        self.racer = Racer()
+        self.track = TrackManager.TrackManager()
+        self.racer = Racer.Racer()
         return self._get_obs()
 
     def step(self, action):
