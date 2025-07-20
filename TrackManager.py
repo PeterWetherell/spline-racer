@@ -56,6 +56,9 @@ class TrackManager:
             i -= 1
         return self.splines[i].get_point(t)
     
+    def getVel(self):
+        return self.splines[self.index].get_vel(self.time).mag()
+    
     def getClosestPoint(self):
         t1 = self.splines[self.index].get_closest_t(self.time)
         if t1 < 0:
