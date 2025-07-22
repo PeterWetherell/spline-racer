@@ -52,7 +52,7 @@ class RacingEnv(gym.Env):
             reward -= 10
             done = True
         elif not self.racer.hasTraction:
-            reward -= 8
+            reward -= 15
             done = True
 
         return self._get_obs(), reward, done, {}
