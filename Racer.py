@@ -9,6 +9,7 @@ class Racer:
     maxSpeed = 700
     dragMaxSpeed = 600
     accel = maxSpeed/1.3
+    slip_percentage = 0.6
     deccel = maxSpeed*3
     turnRadius = width * 4
     dragCoef = accel*(maxSpeed - dragMaxSpeed)/(maxSpeed * dragMaxSpeed**2)
@@ -28,7 +29,7 @@ class Racer:
         turn = np.clip(turn, -1, 1)
 
         # we have some amount of weight and then we get more with downforce from velociy
-        staticFriction = 400 + 400 * (self.relVel.x/Racer.dragMaxSpeed)**2
+        staticFriction = 400 + 600 * (self.relVel.x/Racer.dragMaxSpeed)**2
         centripitalForce = 0.08 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
         
         if np.abs(centripitalForce) > staticFriction: # we lose traction if we have more centripital force than our static friction
@@ -45,7 +46,10 @@ class Racer:
             if throttle == 0:
                 self.relVel.x -= np.sign(self.relVel.x)*min(abs(self.relVel.x),self.loopTime*Racer.accel/3)
             self.relVel.h = self.relVel.x / Racer.turnRadius * turn # S = r * theta --> theta = S/r
-            self.relVel.y -= np.sign(self.relVel.y)*min(abs(self.relVel.y), self.loopTime*Racer.maxSpeed*2)
+            if abs(centripitalForce) > staticFriction*Racer.slip_percentage:
+                self.relVel.y += np.sign(centripitalForce)*(abs(centripitalForce)-staticFriction*Racer.slip_percentage)/(staticFriction*(1.0-Racer.slip_percentage))*self.loopTime*Racer.accel
+            else:
+                self.relVel.y -= np.sign(self.relVel.y)*min(abs(self.relVel.y), self.loopTime*Racer.maxSpeed*2)
         else: # No traction = spin out
             rotVel = self.relVel.h
             self.relVel.h = 0

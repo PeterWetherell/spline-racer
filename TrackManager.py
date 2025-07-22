@@ -25,6 +25,7 @@ class TrackManager:
         self.time = 0
         self.curvature = 0
         self.closestPoint = Point.Point(0,0)
+        self.kill = False
 
     def addNewSpline(self):
         end = self.splines[-1].get_point(1)
@@ -63,7 +64,7 @@ class TrackManager:
         t1 = self.splines[self.index].get_closest_t(self.time)
         if t1 < 0:
             if (self.index < 1): # Has gone too far backward on the track -- we dq them
-                return
+                self.kill = True
             t0 = np.clip(self.splines[self.index-1].get_closest_t(1),0,1) # start at t=1 bc that is theoretically the closest point on the last spline
             if self.splines[self.index].get_point(0).mag() > self.splines[self.index-1].get_point(t0).mag(): # if the point on the previous spline is closer -- use that one
                 self.index -= 1
