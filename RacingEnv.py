@@ -36,7 +36,7 @@ class RacingEnv(gym.Env):
         angle_diff_penalty = -0.04*abs(self._clip_angle(self.track.closestPoint.h - self.racer.pos.h)/np.pi)
         progress_reward = 14.0*self.track.deltaT * self.track.getVel()
         speed_reward = abs(self.racer.relVel.x)/100.0 + 2.0*((self.racer.relVel.x)/200.0)**2
-        sliding_penalty = -0.04 * abs(self.racer.relVel.y)
+        sliding_penalty = -0.08 * abs(self.racer.relVel.y)
 
         self.prev_action = getattr(self, 'prev_action', np.array([0.0, 0.0]))
         jerk_penalty = -15*np.sum(np.square(action - self.prev_action))
@@ -49,10 +49,10 @@ class RacingEnv(gym.Env):
             reward -= 100
             done = True
         elif distance > 250:
-            reward -= 10
+            reward -= 15
             done = True
         elif not self.racer.hasTraction:
-            reward -= 15
+            reward -= 6
             done = True
 
         return self._get_obs(), reward, done, {}
