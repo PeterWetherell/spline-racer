@@ -6,7 +6,7 @@ import RacingEnv
 from stable_baselines3 import PPO
 
 env = RacingEnv.RacingEnv()
-model = PPO.load("./PPO/racer_model_v2")
+model = PPO.load("./PPO/racer_model_v12")
 
 WIDTH, HEIGHT = 800, 600
 compass_size = 100
@@ -43,9 +43,10 @@ while running:
     racer.update(throttle, turn)
     track.update(racer.delta)
 
-    racer.draw(screen)
+    pygame.draw.circle(screen, (100, 100, 100), (WIDTH // 2, HEIGHT // 2), RacingEnv.maxDist)
     track.draw(screen)
-
+    racer.draw(screen)
+    
     pygame.draw.line(screen, (200, 200, 200), (WIDTH - 2.0*compass_size, HEIGHT - compass_size), (WIDTH, HEIGHT - compass_size), 10)
     pygame.draw.line(screen, (200, 200, 200), (WIDTH - compass_size, HEIGHT - 2.0*compass_size), (WIDTH - compass_size, HEIGHT), 10)
     pygame.draw.line(screen, (255, 0, 0), (WIDTH - compass_size, HEIGHT - compass_size), (WIDTH - compass_size, HEIGHT - compass_size + compass_size*throttle), 5)

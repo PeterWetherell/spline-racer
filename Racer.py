@@ -9,7 +9,7 @@ class Racer:
     maxSpeed = 700
     dragMaxSpeed = 600
     accel = maxSpeed/1.3
-    slip_percentage = 0.6
+    slip_percentage = 0.8
     deccel = maxSpeed*3
     turnRadius = width * 4
     dragCoef = accel*(maxSpeed - dragMaxSpeed)/(maxSpeed * dragMaxSpeed**2)
@@ -30,7 +30,8 @@ class Racer:
 
         # we have some amount of weight and then we get more with downforce from velociy
         staticFriction = 400 + 600 * (self.relVel.x/Racer.dragMaxSpeed)**2
-        centripitalForce = 0.08 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
+        centripitalForce = 0.06 * self.relVel.x * self.relVel.h # F = m*v^2/r; r = s/theta = relVel.x/relVel.h; F = m*relVel.x*relVel.h
+        #0.08
         
         if np.abs(centripitalForce) > staticFriction: # we lose traction if we have more centripital force than our static friction
             self.hasTraction = False

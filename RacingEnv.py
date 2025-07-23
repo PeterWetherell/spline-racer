@@ -7,8 +7,8 @@ import TrackManager
 n = 7
 start = 0
 end = 0.75
-maxDist = 250
-targetDist = 120
+maxDist = 150
+targetDist = 80
 
 class RacingEnv(gym.Env):
     def __init__(self):
@@ -24,6 +24,7 @@ class RacingEnv(gym.Env):
     def reset(self):
         self.track = TrackManager.TrackManager()
         self.racer = Racer.Racer()
+        self.prev_action = np.array([0.0, 0.0], dtype=np.float32)
         return self._get_obs()
 
     def step(self, action):
@@ -32,27 +33,27 @@ class RacingEnv(gym.Env):
         self.track.update(self.racer.delta)
 
         distance = self.track.closestPoint.mag()
-        distance_penalty = 0.002*max(targetDist - distance,0)/targetDist - 0.03*max(distance-targetDist,0)/(maxDist - targetDist)
-        angle_diff_penalty = -0.12*abs(self._clip_angle(self.track.closestPoint.h - self.racer.pos.h)/np.pi)
-        progress_reward = 25.0*self.track.deltaT * self.track.getVel()
-        speed_reward = abs(self.racer.relVel.x)/300.0 + 0.25*((self.racer.relVel.x)/200.0)**2
-        sliding_penalty = -0.03*abs(self.racer.relVel.y)
+        distance_penalty = 0.2*max(targetDist - distance,0)/targetDist - 25.0*max(distance-targetDist,0)/(maxDist - targetDist)
+        angle_diff_penalty = -0.15*abs(self._clip_angle(self.track.closestPoint.h - self.racer.pos.h)/np.pi)
+        progress_reward = 15.0*self.track.deltaT * self.track.getVel()
+        speed_reward = abs(self.racer.relVel.x)/400.0 + 0.12*((self.racer.relVel.x)/500.0)**2
+        sliding_penalty = -1.5*abs(self.racer.relVel.y)
 
         self.prev_action = getattr(self, 'prev_action', np.array([0.0, 0.0]))
-        jerk_penalty = -10*np.sum(np.square(action - self.prev_action))
+        jerk_penalty = -45*np.sqrt(np.sum(np.square(action - self.prev_action)))
         self.prev_action = action.copy()
 
         reward = progress_reward + speed_reward + angle_diff_penalty + distance_penalty + jerk_penalty + sliding_penalty
 
         done = False
         if self.track.kill:
-            reward -= 100
+            reward -= 1000
             done = True
-        elif distance > 250:
-            reward -= 40
+        elif distance > maxDist:
+            reward -= 300
             done = True
         elif not self.racer.hasTraction:
-            reward -= 20
+            reward -= 240
             done = True
 
         return self._get_obs(), reward, done, {}
@@ -62,23 +63,24 @@ class RacingEnv(gym.Env):
             track.get_point(start + (end - start) * i / (n - 1)).rotate(-racer.pos.h)
             for i in range(n)
         ]
-        point_features = [np.array([p.x, p.y, self._clip_angle(p.h)]) for p in points]
+        point_features = np.concatenate([[p.x, p.y, self._clip_angle(p.h)] for p in points])
         return np.concatenate([
-            np.array([throttle, turn, racer.relVel.x, racer.relVel.h, track.curvature], dtype=np.float32),
-            *point_features
-        ]).astype(np.float32)
+            np.array([throttle, turn, self.racer.relVel.x, self.racer.relVel.h, self.track.curvature], dtype=np.float32),
+            point_features
+        ])
+
 
     def _get_obs(self):
         points = [
             self.track.get_point(start + (end - start) * i / (n - 1)).rotate(-self.racer.pos.h)
             for i in range(n)
         ]
-        point_features = [np.array([p.x, p.y, self._clip_angle(p.h)]) for p in points]
         self.prev_action = getattr(self, 'prev_action', np.array([0.0, 0.0]))
+        point_features = np.concatenate([[p.x, p.y, self._clip_angle(p.h)] for p in points])
         return np.concatenate([
             np.array([self.prev_action[0], self.prev_action[1], self.racer.relVel.x, self.racer.relVel.h, self.track.curvature], dtype=np.float32),
-            *point_features
-        ]).astype(np.float32)
+            point_features
+        ])
     
     def _clip_angle(self, a):
         return (a + np.pi)%(2*np.pi) - np.pi
