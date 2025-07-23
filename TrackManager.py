@@ -24,8 +24,11 @@ class TrackManager:
         self.index = 1
         self.time = 0
         self.curvature = 0
-        self.closestPoint = Point.Point(0,0)
+        self.closest_point = Point.Point(0,0)
         self.kill = False
+        self.num_splines = 0
+        self.path_length = 0
+        self.dist_traveled = 0
 
     def addNewSpline(self):
         end = self.splines[-1].get_point(1)
@@ -35,16 +38,30 @@ class TrackManager:
         self.splines.append(addSpline(self.splines[-1],Point.Point(end.x+d*np.cos(theta), end.y+d*np.sin(theta), theta_f)))
         
     def update(self, racer_delta):
+        self.dist_traveled += racer_delta.mag()
         racer_delta = racer_delta.mult(-1)
         for i in range(len(self.splines)):
             self.splines[i].update(racer_delta)
         prevT = self.time + self.index
         self.getClosestPoint()
         self.deltaT = (self.time + self.index) - prevT
+        self.path_length += self.get_dist()
         if self.index > 1:
             self.splines.pop(0)
             self.index -= 1
             self.addNewSpline()
+            self.num_splines += 1
+    
+    def get_dist(self):
+        t = -self.deltaT
+        p = self.get_point(t)
+        d = 0
+        num_points = 30
+        for i in range(num_points):
+            n = self.get_point(t*(num_points-i-1)/num_points)
+            d += p.sub(n).mag()*np.sign(self.deltaT) # if we are going backward on the track -- go backward
+            p = n
+        return d
     
     def get_point(self, t):
         t += self.time
@@ -80,11 +97,11 @@ class TrackManager:
                 self.time = 1
         else:
             self.time = t1
-        self.closestPoint = self.splines[self.index].get_point(self.time)
+        self.closest_point = self.splines[self.index].get_point(self.time)
         self.curvature = self.splines[self.index].get_curvature(self.time)
 
     def draw(self,screen):
-        pygame.draw.circle(screen, (255, 0, 0), (int(self.closestPoint.x+400), int(self.closestPoint.y)+300), 6)
+        pygame.draw.circle(screen, (255, 0, 0), (int(self.closest_point.x+400), int(self.closest_point.y)+300), 6)
         end = self.splines[1].get_point(1)
         pygame.draw.circle(screen, (255, 0, 0), (int(end.x+400), int(end.y)+300), 6)
         draw_spline(screen, self.splines[0], color=(0, 255, 0), resolution=200)

@@ -6,7 +6,7 @@ import RacingEnv
 from stable_baselines3 import PPO
 
 env = RacingEnv.RacingEnv()
-model = PPO.load("./PPO/racer_model_v12")
+model = PPO.load("./PPO/racer_model_v13")
 
 WIDTH, HEIGHT = 800, 600
 compass_size = 100
