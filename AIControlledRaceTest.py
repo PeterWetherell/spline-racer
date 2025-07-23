@@ -1,14 +1,12 @@
-from stable_baselines3 import PPO
-import RacingEnv
-
-env = RacingEnv.RacingEnv()
-model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=200000)
-
 import pygame
 import Racer
 import TrackManager
 import numpy as np
+import RacingEnv
+from stable_baselines3 import SAC
+
+env = RacingEnv.RacingEnv()
+model = SAC.load("racer_model")
 
 WIDTH, HEIGHT = 800, 600
 compass_size = 100
