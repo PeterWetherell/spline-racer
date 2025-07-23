@@ -33,13 +33,13 @@ class RacingEnv(gym.Env):
 
         distance = self.track.closestPoint.mag()
         distance_penalty = 0.002*max(targetDist - distance,0)/targetDist - 0.03*max(distance-targetDist,0)/(maxDist - targetDist)
-        angle_diff_penalty = -0.06*abs(self._clip_angle(self.track.closestPoint.h - self.racer.pos.h)/np.pi)
-        progress_reward = 16.0*self.track.deltaT * self.track.getVel()
+        angle_diff_penalty = -0.12*abs(self._clip_angle(self.track.closestPoint.h - self.racer.pos.h)/np.pi)
+        progress_reward = 25.0*self.track.deltaT * self.track.getVel()
         speed_reward = abs(self.racer.relVel.x)/300.0 + 0.25*((self.racer.relVel.x)/200.0)**2
         sliding_penalty = -0.03*abs(self.racer.relVel.y)
 
         self.prev_action = getattr(self, 'prev_action', np.array([0.0, 0.0]))
-        jerk_penalty = -40*np.sum(np.square(action - self.prev_action))
+        jerk_penalty = -10*np.sum(np.square(action - self.prev_action))
         self.prev_action = action.copy()
 
         reward = progress_reward + speed_reward + angle_diff_penalty + distance_penalty + jerk_penalty + sliding_penalty

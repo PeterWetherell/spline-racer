@@ -3,10 +3,10 @@ import Racer
 import TrackManager
 import numpy as np
 import RacingEnv
-from stable_baselines3 import SAC
+from stable_baselines3 import PPO
 
 env = RacingEnv.RacingEnv()
-model = SAC.load("racer_model")
+model = PPO.load("./PPO/racer_model_v2")
 
 WIDTH, HEIGHT = 800, 600
 compass_size = 100

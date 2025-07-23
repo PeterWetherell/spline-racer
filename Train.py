@@ -1,8 +1,8 @@
-from stable_baselines3 import SAC
+from stable_baselines3 import PPO
 import RacingEnv
 
 env = RacingEnv.RacingEnv()
-model = SAC("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=50000)
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=200000)
 
-model.save("racer_model_v5")
+model.save("./PPO/racer_model_v2")
